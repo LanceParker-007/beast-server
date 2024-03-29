@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 1,
   "name": "beast-server-1",
   "builds": [{ "src": "server.js", "use": "@vercel/node" }],
   "routes": [{ "src": "/(.*)", "dest": "/server.js" }]
