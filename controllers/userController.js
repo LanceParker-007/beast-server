@@ -46,7 +46,10 @@ export const saveTestGameDetaisl = asyncHandler(async (req, res) => {
   console.log(gamename, gameOwner);
 
   try {
-    let game = await TestGame.findOne({ gamename: gamename });
+    let game = await TestGame.findOne({
+      gamename: gamename,
+      gameOwner: gameOwner,
+    });
 
     if (!game) {
       game = await TestGame.create({
