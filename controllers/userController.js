@@ -43,8 +43,6 @@ export const saveTestGameDetaisl = asyncHandler(async (req, res) => {
   const { dataFile, frameworkFile, loaderFile, wasmFile, gamename, gameOwner } =
     req.body;
 
-  console.log(gamename, gameOwner);
-
   try {
     let game = await TestGame.findOne({
       gamename: gamename,
@@ -75,6 +73,27 @@ export const saveTestGameDetaisl = asyncHandler(async (req, res) => {
     res.status(400).json({
       success: false,
       message: "Failed to load the game files",
+    });
+  }
+});
+
+export const getMyAllTestBuild = asyncHandler(async (req, res) => {
+  const { gameOwner } = req.body;
+
+  try {
+    let games = await TestGame.find({
+      gameOwner: gameOwner,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "All games of users",
+      games: games,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: "Failed to fetch your builds",
     });
   }
 });

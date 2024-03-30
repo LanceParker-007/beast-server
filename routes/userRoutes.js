@@ -2,6 +2,7 @@ import express from "express";
 import {
   signinWithGoogle,
   saveTestGameDetaisl,
+  getMyAllTestBuild
 } from "../controllers/userController.js";
 import { getUploadURL, removeAllMyTestBuilds } from "../aws/s3.js";
 
@@ -14,5 +15,7 @@ router.post("/get-presigned-url-for-test-game", getUploadURL);
 router.post("/save-test-game-details", saveTestGameDetaisl);
 
 router.post("/remove-all-test-builds", removeAllMyTestBuilds);
+
+router.post("/get-all-test-builds", getMyAllTestBuild);
 
 export default router;
