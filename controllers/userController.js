@@ -77,6 +77,34 @@ export const saveTestGameDetaisl = asyncHandler(async (req, res) => {
   }
 });
 
+export const ifGamenameAlreadyPresent = asyncHandler(async (req, res) => {
+  const { gamename, gameOwner } = req.body;
+
+  try {
+    let game = await TestGame.findOne({
+      gamename: gamename,
+      gameOwner: gameOwner,
+    });
+
+    if (game) {
+      return res.status(201).json({
+        success: false,
+        message: "Already game present with same name",
+      });
+    } else {
+      return res.status(200).json({
+        success: true,
+        message: "New game can be created",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Some network error!",
+    });
+  }
+});
+
 export const getMyAllTestBuild = asyncHandler(async (req, res) => {
   const { gameOwner } = req.body;
 
