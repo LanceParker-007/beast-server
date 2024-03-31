@@ -10,12 +10,8 @@ export const s3Client = new S3Client({
   },
 });
 
-try {
-  connectDB();
+connectDB();
 
-  app.listen(5000, () => {
-    console.log("Server is up and running!");
-  });
-} catch (error) {
-  console.log(error.message);
-}
+app.listen(5000, () => {
+  console.log("Server is up and running!");
+});
