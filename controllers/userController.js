@@ -67,7 +67,7 @@ export const saveTestGameDetaisl = asyncHandler(async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: "Press the start button after 1 min.",
+      message: "Press the start button.",
     });
   } catch (error) {
     res.status(400).json({
@@ -87,7 +87,7 @@ export const ifGamenameAlreadyPresent = asyncHandler(async (req, res) => {
     });
 
     if (game) {
-      return res.status(201).json({
+      return res.status(200).json({
         success: false,
         message: "Already game present with same name",
       });
