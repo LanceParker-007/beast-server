@@ -12,6 +12,25 @@ export const s3Client = new S3Client({
 
 connectDB();
 
-app.listen(5000, () => {
-  console.log("Server is up and running!");
-});
+const startServer = async () => {
+  try {
+    const server = app.listen(5000, () => {
+      console.log("Server is up and running!");
+    });
+
+    // Optionally, you can handle graceful shutdown here
+    const signals = ["SIGTERM", "SIGINT"];
+    for (const signal of signals) {
+      process.on(signal, async () => {
+        console.log(`Received signal ${signal}, shutting down...`);
+        await server.close();
+        process.exit(0);
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  }
+};
+
+export default startServer;
