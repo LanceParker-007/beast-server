@@ -5,6 +5,7 @@ import { config } from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import userRoutes from "../routes/userRoutes.js";
+import gameRoutes from "../routes/gamesRoutes.js";
 
 config({
   path: "./config/config.env",
@@ -13,10 +14,8 @@ config({
 const app = express();
 
 app.use(
-  "*",
   cors({
-    origin: true,
-    credentials: true,
+    origin: "*",
   })
 );
 export const s3Client = new S3Client({
@@ -37,6 +36,7 @@ app.get("/", (req, res) => {
 
 //Auth Routes
 app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/games", gameRoutes);
 
 try {
   connectDB();
