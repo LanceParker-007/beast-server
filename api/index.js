@@ -1,23 +1,36 @@
 import { S3Client } from "@aws-sdk/client-s3";
 import { connectDB } from "../config/db.js";
 import express from "express";
+import { createServer } from "http";
+import { Server } from "socket.io";
 import { config } from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import userRoutes from "../routes/userRoutes.js";
 import gameRoutes from "../routes/gamesRoutes.js";
+import { log } from "console";
 
 config({
   path: "./config/config.env",
 });
 
 const app = express();
+const server = createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*", // or pass your frontend url here:http://localhost:5173
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+  transports: ["websocket", "polling"], // Add this line
+});
 
 app.use(
   cors({
     origin: "*",
   })
 );
+
 export const s3Client = new S3Client({
   region: "ap-south-1",
   credentials: {
@@ -26,6 +39,7 @@ export const s3Client = new S3Client({
   },
 });
 
+// Middlewares
 app.use(express.json());
 app.use(express({ urlencoded: true }));
 app.use(cookieParser());
@@ -34,14 +48,67 @@ app.get("/", (req, res) => {
   res.send("Hello PLAYBRUTAL");
 });
 
-//Auth Routes
+//Routes
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/games", gameRoutes);
 
+// Socket-io implementation starts
+const viewersLists = {};
+
+io.on("connection", (socket) => {
+  console.log("A client connected!");
+
+  // Handle user joining a game room
+  socket.on("join-game-chat", (user, urlUserId, gameId) => {
+    const gameChatRoomId = urlUserId + gameId;
+    socket.join(gameChatRoomId);
+    // console.log(`User ${user?.username} joined room ${gameChatRoomId}`);
+
+    // Add the user to the viewers list for the game room
+    if (!viewersLists[gameChatRoomId]) {
+      viewersLists[gameChatRoomId] = [];
+    }
+    const exist = viewersLists[gameChatRoomId]?.find((viewer) => {
+      return viewer.userId === user?._id;
+    });
+    if (!exist) {
+      viewersLists[gameChatRoomId].push({
+        userId: user?._id,
+        username: user?.username,
+        socketId: socket.id,
+      });
+    }
+    // Broadcast the updated viewers list to all clients in the room
+    io.to(gameChatRoomId).emit("update-viewers", viewersLists);
+  });
+
+  // Handle user leaving a game room
+  socket.on("leave-game-chat", (user, urlUserId, gameId) => {
+    const gameChatRoomId = urlUserId + gameId;
+    socket.join(gameChatRoomId);
+    // console.log(`User ${user?.username} left room ${gameChatRoomId}`);
+
+    // Remove the user from the viewers list for the game room
+    if (viewersLists[gameChatRoomId]) {
+      viewersLists[gameChatRoomId] = viewersLists[gameChatRoomId].filter(
+        (viewer) => viewer.userId !== user?._id
+      );
+    }
+
+    // Broadcast the updated viewers list to all clients in the room
+    io.to(gameChatRoomId).emit("update-viewers", viewersLists);
+  });
+
+  // Handle client-disconnect
+  socket.on("disconnect", () => {
+    console.log("A client disconnected");
+  });
+});
+// Socket-io implementation ends
+
 try {
   connectDB();
-
-  app.listen(5000, () => {
+  server.listen(5000, () => {
     console.log("Server is up and running!");
   });
 } catch (err) {

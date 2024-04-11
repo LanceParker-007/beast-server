@@ -18,6 +18,7 @@ export const getAllPublicGames = asyncHandler(async (req, res) => {
 
 export const getGame = asyncHandler(async (req, res) => {
   const { gameId } = req.body;
+
   try {
     let game = await Game.findOne({ _id: gameId });
 
