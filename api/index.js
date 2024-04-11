@@ -56,7 +56,7 @@ app.use("/api/v1/games", gameRoutes);
 const viewersLists = {};
 
 io.on("connection", (socket) => {
-  console.log("A client connected!");
+  // console.log("A client connected!");
 
   // Handle user joining a game room
   socket.on("join-game-chat", (user, urlUserId, gameId) => {
@@ -71,7 +71,7 @@ io.on("connection", (socket) => {
     const exist = viewersLists[gameChatRoomId]?.find((viewer) => {
       return viewer.userId === user?._id;
     });
-    if (!exist) {
+    if (!exist && urlUserId !== user?._id) {
       viewersLists[gameChatRoomId].push({
         userId: user?._id,
         username: user?.username,
@@ -81,6 +81,19 @@ io.on("connection", (socket) => {
     // Broadcast the updated viewers list to all clients in the room
     io.to(gameChatRoomId).emit("update-viewers", viewersLists);
   });
+
+  // Listen for 'sendInvitation' event from the client
+  socket.on(
+    "send-invitation-to-viewer",
+    ({ recipientSocketId, invitationUrl, gameLobbyCode }) => {
+      // console.log(invitationUrl, gameLobbyCode);
+      // Emit the invitation event to the recipient's socket
+      io.to(recipientSocketId).emit("invitation-from-steamer", {
+        invitationUrl,
+        gameLobbyCode,
+      });
+    }
+  );
 
   // Handle user leaving a game room
   socket.on("leave-game-chat", (user, urlUserId, gameId) => {
@@ -101,7 +114,7 @@ io.on("connection", (socket) => {
 
   // Handle client-disconnect
   socket.on("disconnect", () => {
-    console.log("A client disconnected");
+    // console.log("A client disconnected");
   });
 });
 // Socket-io implementation ends
