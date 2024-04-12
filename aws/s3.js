@@ -1,7 +1,7 @@
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import asyncHandler from "express-async-handler";
-import { s3Client } from "../api/index.js";
+import { s3Client } from "../api/app.js";
 import { TestGame } from "../model/TestGame.js";
 
 const bucketName = "unity-games-test-bucket";
