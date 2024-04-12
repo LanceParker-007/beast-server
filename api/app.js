@@ -98,7 +98,6 @@ io.on("connection", (socket) => {
   // Handle user leaving a game room
   socket.on("leave-game-chat", (user, urlUserId, gameId) => {
     const gameChatRoomId = urlUserId + gameId;
-    socket.join(gameChatRoomId);
     // console.log(`User ${user?.username} left room ${gameChatRoomId}`);
 
     // Remove the user from the viewers list for the game room
@@ -113,7 +112,7 @@ io.on("connection", (socket) => {
   });
 
   // Handle client-disconnect
-  socket.on("disconnect", () => {
+  socket.on("disconnect", (user, urlUserId, gameId) => {
     // console.log("A client disconnected");
   });
 });
