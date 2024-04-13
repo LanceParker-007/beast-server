@@ -113,19 +113,8 @@ io.on("connection", (socket) => {
 
   // Handle client-disconnect
   socket.on("disconnect", (user, urlUserId, gameId) => {
-    // console.log("A client disconnected");
-    const gameChatRoomId = urlUserId + gameId;
-    // console.log(`User ${user?.username} left room ${gameChatRoomId}`);
-
-    // Remove the user from the viewers list for the game room
-    if (viewersLists[gameChatRoomId]) {
-      viewersLists[gameChatRoomId] = viewersLists[gameChatRoomId].filter(
-        (viewer) => viewer.userId !== user?._id
-      );
-    }
-
-    // Broadcast the updated viewers list to all clients in the room
-    io.to(gameChatRoomId).emit("update-viewers", viewersLists);
+    socket.emit("leave-game-chat", user, urlUserId, gameId);
+    socket.disconnect();
   });
 });
 // Socket-io implementation ends
